@@ -1,0 +1,34 @@
+import logging
+import os
+import sys
+import asyncio
+sys.path.append(".")
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+
+from handlers import start, auth_handler, track, playlist, title
+
+logging.basicConfig(level=logging.INFO)
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise RuntimeError("Set BOT_TOKEN environment variable")
+
+bot = Bot(BOT_TOKEN)
+dp = Dispatcher(storage=MemoryStorage())
+
+dp.include_router(start)
+dp.include_router(auth_handler)
+dp.include_router(track)
+dp.include_router(playlist)
+dp.include_router(title)
+
+async def main():
+    await dp.start_polling(bot)
+
+
+if __name__ == '__main__':
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Exit") 

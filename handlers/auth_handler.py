@@ -1,0 +1,43 @@
+from aiogram import Router, F
+from aiogram.types import Message, CallbackQuery
+from aiogram.fsm.context import FSMContext
+from states import AuthState
+import auth as auth_utils
+from texts.texts import auth_text
+
+router = Router()
+
+@router.message(F.text == "/auth")
+async def start_auth(message: Message, state: FSMContext):
+    await message.answer(auth_text, parse_mode="HTML")
+    await state.set_state(AuthState.waiting_token)
+
+@router.callback_query(F.data == "auth")
+async def auth_callback(call: CallbackQuery, state: FSMContext):
+    await call.message.answer(auth_text, parse_mode="HTML")
+    await state.set_state(AuthState.waiting_token)
+
+@router.message(AuthState.waiting_token)
+async def receive_token(message: Message, state: FSMContext):
+    token = message.text.strip()
+    if not token.startswith("y0_"):
+        await message.answer("❌ Неверный формат токена. Попробуй снова.")
+        return
+    await state.update_data(token=token)
+    await message.answer("🎵 Теперь пришли ссылку на плейлист, куда будет загружаться треки")
+    await state.set_state(AuthState.waiting_playlist)
+
+@router.message(AuthState.waiting_playlist)
+async def receive_playlist(message: Message, state: FSMContext):
+    print("Авторизация от user_id =", message.from_user.id)
+    playlist_link = message.text.strip()
+    data = await state.get_data()
+    try:
+        kind = auth_utils.authenticate(message.from_user.id, data["token"], playlist_link)
+        print("Сохраняем:", message.from_user.id, data["token"], kind)
+        print("Содержимое db.json:", )
+
+        await message.answer(f"✅ Авторизация прошла. kind плейлиста: {kind}")
+    except Exception as e:
+        await message.answer(f"❌ Ошибка при сохранении: {e}")
+    await state.clear()
