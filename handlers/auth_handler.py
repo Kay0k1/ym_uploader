@@ -4,13 +4,18 @@ from aiogram.fsm.context import FSMContext
 from states import AuthState
 import auth as auth_utils
 from texts.texts import auth_text
+from keyboards.menu import back_to_menu_keyboard
 
 router = Router()
 
 @router.message(F.text == "/auth")
 async def start_auth(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state == AuthState.waiting_token:
+        return
     await message.answer(auth_text, parse_mode="HTML")
     await state.set_state(AuthState.waiting_token)
+
 
 @router.callback_query(F.data == "auth")
 async def auth_callback(call: CallbackQuery, state: FSMContext):
@@ -29,7 +34,6 @@ async def receive_token(message: Message, state: FSMContext):
 
 @router.message(AuthState.waiting_playlist)
 async def receive_playlist(message: Message, state: FSMContext):
-    print("Авторизация от user_id =", message.from_user.id)
     playlist_link = message.text.strip()
     data = await state.get_data()
     try:
@@ -38,6 +42,7 @@ async def receive_playlist(message: Message, state: FSMContext):
             f"✅ Успешно! Токен и плейлист сохранены.\n"
             f"<b>kind:</b> <code>{kind}</code>\n\n"
             "Теперь можно загружать треки 👇",
+            kb=back_to_menu_keyboard,
             parse_mode="HTML"
         )
 

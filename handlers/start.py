@@ -11,18 +11,17 @@ router = Router()
 @router.message(F.text == "/start")
 async def cmd_start(message: Message):
     user = message.from_user.id
-    if not get_user(user):
-        kb = get_auth_keyboard()
+    if not await get_user(user):
+        kb = await get_auth_keyboard()
         await message.answer(reg_text, reply_markup=kb, parse_mode="HTML")
     else:
-        kb = get_menu_keyboard()
+        kb = await get_menu_keyboard()
         await message.answer(main_menu_text, reply_markup=kb, parse_mode="HTML")
 
 
 @router.message(F.text == "/help")
 async def help_callback(message: Message):
     await message.answer(help_text, reply_markup=back_to_menu_keyboard(), parse_mode="HTML")
-
 
 
 @router.callback_query(F.data == "back_to_menu")
