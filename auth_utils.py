@@ -9,7 +9,7 @@ def get_kind(link: str) -> str:
 
 async def get_user(user_id: int) -> Optional[dict]:
     user = await get_user_by_tg_id(user_id)
-    if user:
+    if user and user.token and user.playlist_kind:
         return {
             "token": user.token,
             "playlist_kind": user.playlist_kind

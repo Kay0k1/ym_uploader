@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from database.models import async_main
 
-from handlers import start, auth_handler, track, playlist, title
+from handlers import start, auth, track, playlist
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,10 +17,9 @@ bot = Bot(BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
 dp.include_router(start)
-dp.include_router(auth_handler)
+dp.include_router(auth)
 dp.include_router(track)
 dp.include_router(playlist)
-dp.include_router(title)
 
 async def main():
     await async_main()

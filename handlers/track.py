@@ -9,7 +9,6 @@ import auth_utils
 import asyncio
 import logging
 
-
 router = Router()
 
 
@@ -65,7 +64,7 @@ async def cover_choice_handler(call: CallbackQuery, state: FSMContext):
         await state.set_state(AddTrackState.waiting_cover_file)
     else:
         await finalize_upload(call.message, call.from_user.id, state)
-        
+
 
 @router.message(AddTrackState.waiting_cover_file, F.photo)
 async def process_cover_file(message: Message, state: FSMContext):
@@ -111,12 +110,12 @@ async def finalize_upload(reply_target: Message, user_id: int, state: FSMContext
     if cover_path and os.path.exists(cover_path):
         os.remove(cover_path)
 
-    await reply_target.edit_text(
+    await reply_target.answer(
         f"✅ Трек <b>{data['title']}</b> загружен!",
-        parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="↩️ Вернуться в меню", callback_data="main_menu")],
             [InlineKeyboardButton(text="📥 Загрузить еще один трек", callback_data="add_track")]
-        ])
+        ]),
+        parse_mode="HTML"
     )
     await state.clear()

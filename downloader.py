@@ -17,7 +17,7 @@ def download_audio(query: str) -> tuple[str, str | None]:
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": output_path,
-        "ffmpeg_location": "/usr/bin",
+        "ffmpeg_location": "/opt/homebrew/bin/",
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
