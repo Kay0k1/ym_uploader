@@ -56,5 +56,8 @@ async def receive_playlist(message: Message, state: FSMContext):
         )
 
     except Exception as e:
-        await message.answer(f"❌ Ошибка при сохранении: {e}\n обратись к @avtilomm за помощью")
+        await message.answer(
+            f"❌ Ошибка при сохранении: {e}\n обратись к @avtilomm за помощью",
+            disable_web_page_preview=True
+        )
     await state.clear()
