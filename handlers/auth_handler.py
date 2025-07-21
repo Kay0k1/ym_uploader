@@ -33,11 +33,14 @@ async def receive_playlist(message: Message, state: FSMContext):
     playlist_link = message.text.strip()
     data = await state.get_data()
     try:
-        kind = auth_utils.authenticate(message.from_user.id, data["token"], playlist_link)
-        print("Сохраняем:", message.from_user.id, data["token"], kind)
-        print("Содержимое db.json:", )
+        kind = await auth_utils.authenticate(message.from_user.id, data["token"], playlist_link)
+        await message.answer(
+            f"✅ Успешно! Токен и плейлист сохранены.\n"
+            f"<b>kind:</b> <code>{kind}</code>\n\n"
+            "Теперь можно загружать треки 👇",
+            parse_mode="HTML"
+        )
 
-        await message.answer(f"✅ Авторизация прошла. kind плейлиста: {kind}")
     except Exception as e:
         await message.answer(f"❌ Ошибка при сохранении: {e}")
     await state.clear()

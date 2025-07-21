@@ -34,7 +34,13 @@ async def set_custom_title(message: Message, state: FSMContext):
         return
 
     await message.answer("🚀 Загружаю в Яндекс.Музыку...")
-    user_data = auth.get_user(message.from_user.id)
+
+    user_data = await auth.get_user(message.from_user.id)
+    if not user_data:
+        await message.answer("❌ Вы не авторизованы. Используйте /auth.")
+        await state.clear()
+        return
+
     try:
         await asyncio.to_thread(
             uploader.upload_track,

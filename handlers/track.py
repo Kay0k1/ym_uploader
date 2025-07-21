@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.fsm.context import FSMContext
 from states import AddTrackState
-from downloader import set_mp3_metadata, download_audio, extract_youtube_id
+from downloader import set_mp3_metadata, download_audio
 import os
 import sys
 import uploader
@@ -25,7 +25,7 @@ async def process_query(message: Message, state: FSMContext):
     user_id = message.from_user.id
     query = message.text.strip()
 
-    data = auth.get_user(user_id)
+    data = await auth.get_user(user_id)
     if not data:
         await message.answer("Сначала авторизуйтесь через /auth")
         await state.clear()
@@ -45,9 +45,9 @@ async def process_query(message: Message, state: FSMContext):
         await state.clear()
         return
 
-    await state.update_data(mp3_path=mp3_path, original_query=query)
     await message.answer("✍️ Введите, как будет отображаться трек в плейлисте:")
     await state.set_state(AddTrackState.waiting_title)
+
 
 
 @router.message(AddTrackState.waiting_title)
@@ -89,7 +89,7 @@ async def process_cover_file(message: Message, state: FSMContext):
 
 async def finalize_upload(reply_target: Message, user_id: int, state: FSMContext):
     data = await state.get_data()
-    user = auth.get_user(user_id)
+    user = await auth.get_user(user_id)
 
     if not user:
         await reply_target.answer("❌ Вы не авторизованы. Используйте /auth.")

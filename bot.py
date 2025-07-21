@@ -3,6 +3,7 @@ import os
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from database.models import async_main
 
 from handlers import start, auth_handler, track, playlist, title
 
@@ -22,6 +23,7 @@ dp.include_router(playlist)
 dp.include_router(title)
 
 async def main():
+    await async_main()
     await dp.start_polling(bot)
 
 

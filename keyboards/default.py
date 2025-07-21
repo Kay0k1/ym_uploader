@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from auth import get_user
 
-def get_menu_keyboard(user_id: int) -> InlineKeyboardMarkup:
+async def get_menu_keyboard(user_id: int) -> InlineKeyboardMarkup:
     buttons = [
         [InlineKeyboardButton(text="📥 Загрузить трек", callback_data="add_track")],
         [InlineKeyboardButton(text="🎵 Изменить плейлист", callback_data="change_playlist")],
