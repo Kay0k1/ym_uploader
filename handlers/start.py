@@ -4,7 +4,7 @@ from keyboards.default_kb import get_menu_keyboard
 from keyboards.menu_kb import back_to_menu_keyboard
 from keyboards.auth_kb import get_auth_keyboard
 from texts.texts import main_menu_text, help_text, reg_text
-from auth import get_user
+from auth_utils import get_user
 
 router = Router()
 
@@ -61,7 +61,7 @@ async def main_menu(call: CallbackQuery):
 @router.callback_query(F.data == "help")
 async def help_callback(call: CallbackQuery):
     await call.message.delete()
-    kb = back_to_menu_keyboard()
+    kb = await back_to_menu_keyboard()
     await call.message.answer(
         help_text,
         reply_markup=kb,

@@ -4,13 +4,12 @@ from aiogram.fsm.context import FSMContext
 from states import AddTrackState
 from downloader import set_mp3_metadata, download_audio
 import os
-import sys
 import uploader
-import auth
+import auth_utils
 import asyncio
 import logging
 
-sys.path.append(".")
+
 router = Router()
 
 
@@ -22,16 +21,9 @@ async def add_track_callback(call: CallbackQuery, state: FSMContext):
 
 @router.message(AddTrackState.waiting_query)
 async def process_query(message: Message, state: FSMContext):
-    user_id = message.from_user.id
     query = message.text.strip()
 
-    data = await auth.get_user(user_id)
-    if not data:
-        await message.answer("Сначала авторизуйтесь через /auth")
-        await state.clear()
-        return
-
-    await message.answer("⏬ Скачиваю аудио...")
+    await message.answer("⏬ Скачиваю аудио...\nЭто может занять некоторое время")
     try:
         mp3_path, cover_url = await asyncio.to_thread(download_audio, query)
         await state.update_data(
@@ -47,7 +39,6 @@ async def process_query(message: Message, state: FSMContext):
 
     await message.answer("✍️ Введите, как будет отображаться трек в плейлисте:")
     await state.set_state(AddTrackState.waiting_title)
-
 
 
 @router.message(AddTrackState.waiting_title)
@@ -89,12 +80,7 @@ async def process_cover_file(message: Message, state: FSMContext):
 
 async def finalize_upload(reply_target: Message, user_id: int, state: FSMContext):
     data = await state.get_data()
-    user = await auth.get_user(user_id)
-
-    if not user:
-        await reply_target.answer("❌ Вы не авторизованы. Используйте /auth.")
-        await state.clear()
-        return
+    user = await auth_utils.get_user(user_id)
 
     await reply_target.answer("📤 Загружаю в Яндекс.Музыку...")
 
@@ -125,10 +111,12 @@ async def finalize_upload(reply_target: Message, user_id: int, state: FSMContext
     if cover_path and os.path.exists(cover_path):
         os.remove(cover_path)
 
-    await reply_target.answer(
-        "✅ Трек загружен!",
+    await reply_target.edit_text(
+        f"✅ Трек <b>{data['title']}</b> загружен!",
+        parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="↩️ Вернуться в меню", callback_data="main_menu")],
             [InlineKeyboardButton(text="📥 Загрузить еще один трек", callback_data="add_track")]
-        ]))
+        ])
+    )
     await state.clear()

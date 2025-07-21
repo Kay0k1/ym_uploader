@@ -2,14 +2,14 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from states import AddTrackState
-import auth
+import auth_utils
 import asyncio
 import uploader
 import os
 import logging
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
-from keyboards.default_kb import get_menu_keyboard
+from keyboards.menu_kb import back_to_menu_keyboard
 
 router = Router()
 
@@ -35,12 +35,8 @@ async def set_custom_title(message: Message, state: FSMContext):
 
     await message.answer("🚀 Загружаю в Яндекс.Музыку...")
 
-    user_data = await auth.get_user(message.from_user.id)
-    if not user_data:
-        await message.answer("❌ Вы не авторизованы. Используйте /auth.")
-        await state.clear()
-        return
-
+    user_data = await auth_utils.get_user(message.from_user.id)
+    
     try:
         await asyncio.to_thread(
             uploader.upload_track,
@@ -55,5 +51,10 @@ async def set_custom_title(message: Message, state: FSMContext):
         return
 
     os.remove(mp3_path)
-    await message.answer("✅ Трек загружен!", reply_markup=get_menu_keyboard(message.from_user.id))
+    kb = await back_to_menu_keyboard()
+    await message.answer(
+        f"✅ Трек {title} загружен!",
+        reply_markup=kb,
+        parse_mode="HTML"
+    )
     await state.clear()
