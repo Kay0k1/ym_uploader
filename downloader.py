@@ -8,7 +8,7 @@ from mutagen.id3 import ID3, TIT2, APIC
 import requests
 
 
-def download_audio(query: str) -> str:
+def download_audio(query: str) -> tuple[str, str | None]:
     """Скачивает аудио и возвращает путь к mp3-файлу."""
     if not query.startswith(("http://", "https://")):
         query = f"ytsearch1:{query}"
@@ -31,7 +31,7 @@ def download_audio(query: str) -> str:
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
-            ydl.download([query])
+            info = ydl.extract_info(query, download=True)
     except DownloadError as e:
         raise RuntimeError(f"yt-dlp error: {e}")
     
@@ -39,7 +39,7 @@ def download_audio(query: str) -> str:
     if not os.path.exists(final_path):
         raise RuntimeError("MP3 файл не найден после загрузки.")
 
-    return final_path
+    return final_path, info.get("thumbnail")
 
 
 def set_mp3_metadata(

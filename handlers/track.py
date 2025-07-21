@@ -3,7 +3,6 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKe
 from aiogram.fsm.context import FSMContext
 from states import AddTrackState
 from downloader import set_mp3_metadata, download_audio, extract_youtube_id
-from keyboards import menu
 import os
 import sys
 import uploader
@@ -34,7 +33,12 @@ async def process_query(message: Message, state: FSMContext):
 
     await message.answer("⏬ Скачиваю аудио...")
     try:
-        mp3_path = await asyncio.to_thread(download_audio, query)
+        mp3_path, cover_url = await asyncio.to_thread(download_audio, query)
+        await state.update_data(
+            mp3_path=mp3_path,
+            original_query=query,
+            cover_url=cover_url,
+        )
     except Exception as e:
         logging.exception("download error")
         await message.answer(f"❌ Ошибка загрузки аудио: {e}")
@@ -69,13 +73,8 @@ async def cover_choice_handler(call: CallbackQuery, state: FSMContext):
         await call.message.edit_text("📎 Пришли изображение (JPG/PNG), которое будет обложкой для трека:")
         await state.set_state(AddTrackState.waiting_cover_file)
     else:
-        if choice == "youtube":
-            data = await state.get_data()
-            youtube_id = extract_youtube_id(data.get("original_query", ""))
-            if youtube_id:
-                await state.update_data(cover_url=f"https://i.ytimg.com/vi/{youtube_id}/maxresdefault.jpg")
         await finalize_upload(call.message, call.from_user.id, state)
-
+        
 
 @router.message(AddTrackState.waiting_cover_file, F.photo)
 async def process_cover_file(message: Message, state: FSMContext):
