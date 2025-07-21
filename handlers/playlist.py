@@ -23,7 +23,7 @@ async def receive_new_playlist(message: Message, state: FSMContext):
     if message.text == "🔙 Назад":
         await message.answer(
             main_menu_text,
-            reply_markup=get_menu_keyboard(message.from_user.id),
+            reply_markup=await get_menu_keyboard(),
             parse_mode="HTML"
         )
         await state.clear()
@@ -43,7 +43,7 @@ async def receive_new_playlist(message: Message, state: FSMContext):
             f"✅ Плейлист успешно обновлён!\n"
             f"<b>Новый kind:</b> <code>{playlist_kind}</code>",
             parse_mode="HTML",
-            reply_markup=get_menu_keyboard(message.from_user.id)
+            reply_markup=await get_menu_keyboard()
         )
     except Exception as e:
         await message.answer(

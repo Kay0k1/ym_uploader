@@ -42,7 +42,7 @@ async def receive_playlist(message: Message, state: FSMContext):
             f"✅ Успешно! Токен и плейлист сохранены.\n"
             f"<b>kind:</b> <code>{kind}</code>\n\n"
             "Теперь можно загружать треки 👇",
-            kb=back_to_menu_keyboard,
+            reply_markup=back_to_menu_keyboard(),
             parse_mode="HTML"
         )
 
