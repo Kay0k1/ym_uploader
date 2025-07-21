@@ -33,7 +33,8 @@ async def help_callback(message: Message):
     await message.answer(
         help_text,
         reply_markup=kb,
-        parse_mode="HTML"
+        parse_mode="HTML",
+        disable_web_page_preview=True
     )
 
 
