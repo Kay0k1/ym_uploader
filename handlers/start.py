@@ -2,43 +2,44 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from keyboards.default import get_menu_keyboard
 from keyboards.menu import back_to_menu_keyboard
-from texts.texts import welcome_text, main_menu_text, help_text
+from keyboards.auth_kb import get_auth_keyboard
+from texts.texts import main_menu_text, help_text, reg_text
 from auth import get_user
-import database.requests as rq
 
 router = Router()
 
-@router.callback_query(F.data == "back_to_menu")
-async def back_to_menu(call: CallbackQuery):
-    await call.message.delete()
-    kb = await get_menu_keyboard(call.from_user.id)
-    await call.message.answer(main_menu_text, reply_markup=kb, parse_mode="HTML")
-
-
-@router.callback_query(F.data == "main_menu")
-async def main_menu(call: CallbackQuery):
-    kb = await get_menu_keyboard(call.from_user.id)
-    user = await get_user(call.from_user.id)
-    text = welcome_text if not user else main_menu_text
-    await call.message.answer(text, reply_markup=kb, parse_mode="HTML")
-
-
 @router.message(F.text == "/start")
 async def cmd_start(message: Message):
-    await rq.reg_user(message.from_user.id)
-    kb = await get_menu_keyboard(message.from_user.id)
-    user = await get_user(message.from_user.id)
-    text = welcome_text if not user else main_menu_text
-    await message.answer(text, reply_markup=kb, parse_mode="HTML")
-
-
-@router.callback_query(F.data == "help")
-async def help_callback(call: CallbackQuery):
-    await call.message.delete()
-    await call.message.answer(help_text, reply_markup=back_to_menu_keyboard(), parse_mode="HTML")
+    user = message.from_user.id
+    if not get_user(user):
+        kb = get_auth_keyboard()
+        await message.answer(reg_text, reply_markup=kb, parse_mode="HTML")
+    else:
+        kb = get_menu_keyboard()
+        await message.answer(main_menu_text, reply_markup=kb, parse_mode="HTML")
 
 
 @router.message(F.text == "/help")
 async def help_callback(message: Message):
     await message.answer(help_text, reply_markup=back_to_menu_keyboard(), parse_mode="HTML")
+
+
+
+@router.callback_query(F.data == "back_to_menu")
+async def back_to_menu(call: CallbackQuery):
+    await call.message.delete()
+    kb = await get_menu_keyboard()
+    await call.message.answer(main_menu_text, reply_markup=kb, parse_mode="HTML")
+
+
+@router.callback_query(F.data == "main_menu")
+async def main_menu(call: CallbackQuery):
+    kb = await get_menu_keyboard()
+    await call.message.answer(main_menu_text, reply_markup=kb, parse_mode="HTML")
+
+ 
+@router.callback_query(F.data == "help")
+async def help_callback(call: CallbackQuery):
+    await call.message.delete()
+    await call.message.answer(help_text, reply_markup=back_to_menu_keyboard(), parse_mode="HTML")
 
