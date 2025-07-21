@@ -14,6 +14,20 @@ async def back_to_menu(call: CallbackQuery):
     await call.message.answer(
         "Выбери действие:", reply_markup=kb
     )
+    
+    
+@router.callback_query(F.data == "main_menu")
+async def main_menu(call: CallbackQuery):
+    kb = get_menu_keyboard(call.from_user.id)
+    if not get_user(call.from_user.id):
+        text = welcome_text
+    else: 
+        text = main_menu_text
+    await call.message.answer(
+        text,
+        reply_markup=kb,
+        parse_mode="HTML"
+    )
 
 @router.message(F.text == "/start")
 async def cmd_start(message: Message):

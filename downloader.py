@@ -9,7 +9,7 @@ import requests
 
 
 def download_audio(query: str) -> str:
-    """Скачать аудио и вернуть путь к mp3-файлу."""
+    """Скачивает аудио и возвращает путь к mp3-файлу."""
     if not query.startswith(("http://", "https://")):
         query = f"ytsearch1:{query}"
 
@@ -43,15 +43,26 @@ def download_audio(query: str) -> str:
 
 
 def set_mp3_metadata(
-    file_path: str, title: str, cover_path: str | None = None, cover_url: str | None = None
-        ) -> None:
-    """Добавляет метаданные в mp3-файл: название и обложку."""
+    file_path: str,
+    title: str,
+    cover_path: str | None = None,
+    cover_url: str | None = None
+) -> None:
+    """
+    Добавляет метаданные в mp3-файл: название и обложку.
+    
+    Аргументы:
+        `file_path`: путь до файла
+        `title`: название трека
+        `cover_path`: путь до обложки
+        `cover_url`: ссылка на обложку
+    """
     audio = MP3(file_path, ID3=ID3)
 
     try:
         audio.add_tags()
     except Exception:
-        pass  # теги уже есть
+        pass
 
     audio.tags["TIT2"] = TIT2(encoding=3, text=title)
 
@@ -65,7 +76,7 @@ def set_mp3_metadata(
                 data=img.read()
             )
     elif cover_url:
-        img_data = requests.get(cover_url).content
+        img_data = requests.get(cover_url, allow_redirects=True).content
         audio.tags["APIC"] = APIC(
             encoding=3,
             mime='image/jpeg',
@@ -79,11 +90,11 @@ def set_mp3_metadata(
 
 def extract_youtube_id(url_or_query: str) -> str | None:
     """
-    Возвращает YouTube ID из ссылки или None, если не удалось.
+    Возвращает `YouTube ID` из ссылки или `None`, если не удалось.
     """
     patterns = [
-        r"(?:v=|\/)([0-9A-Za-z_-]{11})",  # стандартный ID в ссылке
-        r"youtu\.be\/([0-9A-Za-z_-]{11})",  # короткая ссылка
+        r"(?:v=|\/)([0-9A-Za-z_-]{11})", 
+        r"youtu\.be\/([0-9A-Za-z_-]{11})", 
     ]
     for pattern in patterns:
         match = re.search(pattern, url_or_query)

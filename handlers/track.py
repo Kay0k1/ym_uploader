@@ -3,6 +3,7 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKe
 from aiogram.fsm.context import FSMContext
 from states import AddTrackState
 from downloader import set_mp3_metadata, download_audio, extract_youtube_id
+from keyboards import menu
 import os
 import sys
 import uploader
@@ -125,5 +126,10 @@ async def finalize_upload(reply_target: Message, user_id: int, state: FSMContext
     if cover_path and os.path.exists(cover_path):
         os.remove(cover_path)
 
-    await reply_target.answer("✅ Трек загружен!")
+    await reply_target.answer(
+        "✅ Трек загружен!",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="↩️ Вернуться в меню", callback_data="main_menu")],
+            [InlineKeyboardButton(text="📥 Загрузить еще один трек", callback_data="add_track")]
+        ]))
     await state.clear()
