@@ -4,8 +4,8 @@ from aiogram.fsm.context import FSMContext
 from states import PlaylistState
 import auth
 from texts.texts import main_menu_text
-from keyboards.menu import back_to_menu_keyboard
-from keyboards.default import get_menu_keyboard
+from keyboards.menu_kb import back_to_menu_keyboard
+from keyboards.default_kb import get_menu_keyboard
 
 router = Router()
 

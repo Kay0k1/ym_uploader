@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from states import AuthState
 import auth as auth_utils
 from texts.texts import auth_text
-from keyboards.menu import back_to_menu_keyboard
+from keyboards.menu_kb import back_to_menu_keyboard
 
 router = Router()
 

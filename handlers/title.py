@@ -9,7 +9,7 @@ import os
 import logging
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
-from keyboards.default import get_menu_keyboard
+from keyboards.default_kb import get_menu_keyboard
 
 router = Router()
 
