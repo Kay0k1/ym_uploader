@@ -1,8 +1,6 @@
 import logging
 import os
-import sys
 import asyncio
-sys.path.append(".")
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
