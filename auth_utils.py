@@ -2,6 +2,9 @@ from database.requests import get_user_by_tg_id, save_or_update_user
 from typing import Optional
 
 def get_kind(link: str) -> str:
+    """
+    Получение уникального `kind` плейлиста пользователя
+    """
     parts = link.split("/")
     if len(parts) >= 7:
         return parts[6].split("?")[0]
