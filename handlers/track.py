@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.fsm.context import FSMContext
 from states import AddTrackState
+from database.requests import add_user_track
 from downloader import set_mp3_metadata, download_audio
 import os
 import uploader
@@ -109,7 +110,6 @@ async def finalize_upload(reply_target: Message, user_id: int, state: FSMContext
     cover_path = data.get("cover_path")
     if cover_path and os.path.exists(cover_path):
         os.remove(cover_path)
-
     await reply_target.answer(
         f"✅ Трек <b>{data['title']}</b> загружен!",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
@@ -118,4 +118,5 @@ async def finalize_upload(reply_target: Message, user_id: int, state: FSMContext
         ]),
         parse_mode="HTML"
     )
+    await add_user_track(user_id, data["title"])
     await state.clear()

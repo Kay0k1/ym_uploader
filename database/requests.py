@@ -1,5 +1,18 @@
 from sqlalchemy import select
-from database.models import async_session, User
+from database.models import async_session, User, Track
+
+async def add_user_track(tg_id: int, title: str) -> None:
+    async with async_session() as session:
+        result = await session.execute(select(User).where(User.tg_id == tg_id))
+        user = result.scalar_one_or_none()
+
+        if not user:
+            return
+
+        track = Track(user_id=user.id, title=title)
+        session.add(track)
+        user.track_count += 1
+        await session.commit()
 
 async def get_user_by_tg_id(tg_id: int) -> User | None:
     async with async_session() as session:
@@ -28,3 +41,8 @@ async def save_or_update_user(tg_id: int, token: str, kind: str) -> None:
             session.add(user)
 
         await session.commit()
+
+async def get_all_users() -> list[User]:
+    async with async_session() as session:
+        result = await session.execute(select(User))
+        return result.scalars().all()
