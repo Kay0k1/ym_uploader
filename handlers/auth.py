@@ -5,6 +5,7 @@ from states import AuthState
 import auth_utils
 from texts.texts import reg_text, auth_text
 from keyboards.menu_kb import back_to_menu_keyboard
+from keyboards.auth_kb import get_auth_keyboard
 
 router = Router()
 
@@ -13,7 +14,12 @@ async def start_auth(message: Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state == AuthState.waiting_token:
         return
-    await message.answer(reg_text, parse_mode="HTML")
+    kb = await get_auth_keyboard()
+    await message.answer(
+        reg_text,
+        reply_markup=kb,
+        parse_mode="HTML"
+    )
     await state.set_state(AuthState.waiting_token)
 
 
@@ -34,7 +40,7 @@ async def auth_callback(call: CallbackQuery, state: FSMContext):
 async def receive_token(message: Message, state: FSMContext):
     token = message.text.strip()
     if not token.startswith("y0_"):
-        await message.answer("❌ Неверный формат токена. Напиши /auth, чтобы попробовать снова")
+        await message.answer("❌ Неверный формат токена. Напиши /start, чтобы попробовать снова")
         await state.clear()
         return
     await state.update_data(token=token)

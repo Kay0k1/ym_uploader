@@ -29,9 +29,12 @@ async def cmd_start(message: Message):
 
 @router.message(F.text == "/help")
 async def help_callback(message: Message):
-    kb = await back_to_menu_keyboard()
+    if not await get_user(message.from_user.id):
+        kb = await get_auth_keyboard()
+    else:
+        kb = await back_to_menu_keyboard()
     await message.answer(
-        help_text,
+        reg_text,
         reply_markup=kb,
         parse_mode="HTML",
         disable_web_page_preview=True
