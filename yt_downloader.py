@@ -17,7 +17,7 @@ def download_audio(query: str) -> tuple[str, str | None]:
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": output_path,
-        "ffmpeg_location": "/usr/bin",
+        "ffmpeg_location": "path/to/ffmpeg", #чтобы узнать путь пропишите which ffmpeg
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -27,7 +27,7 @@ def download_audio(query: str) -> tuple[str, str | None]:
         ],
         "quiet": True,
         "noprogress": True,
-        "proxy": "socks5h://cE5ofN:2XJTNa@196.18.0.135:8000",
+        "proxy": "socks5h://login:pass@ipv4:port",
         "socket_timeout": 10
     }
 
