@@ -22,27 +22,15 @@ async def admin_panel(message: Message):
         "👑 Админ-панель",
         reply_markup=kb
     )
-
-@router.callback_query(F.data == "admin_users")
-async def show_all_users(call: CallbackQuery):
-    users = await get_all_users()
     
-    if not users:
-        kb = await back_to_menu_keyboard
-        await call.message.edit_text(
-            "😶 Пока что пользователей нет.",
-            reply_markup=kb
-        )
-        return
 
-    text_lines = ["<b>📋 Список пользователей:</b>\n"]
-    for user in users:
-        line = f"• <code>{user.tg_id}</code> — треков: {user.track_count or 0}"
-        text_lines.append(line)
-
-    await call.message.edit_text(
-        "\n".join(text_lines),
-        parse_mode="HTML"
+@router.callback_query(F.data == "back_to_admin_menu")
+async def admin_menu(call: CallbackQuery):
+    await call.message.delete()
+    kb = await get_admin_menu()
+    await call.message.answer(
+        "👑 Админ-панель",
+        reply_markup=kb
     )
 
 
@@ -77,7 +65,7 @@ async def show_users_paginated(call: CallbackQuery):
     for user in chunk:
         kb.button(
             text=f"➡️ Профиль {user.tg_id}",
-            callback_data=f"user_profile:{user.tg_id}"
+            callback_data=f"user_profile:{user.tg_id}:{page}"
         )
 
     nav_buttons = []
@@ -92,6 +80,7 @@ async def show_users_paginated(call: CallbackQuery):
 
     kb.row(*nav_buttons)
     kb.button(text="🔙 Назад", callback_data="admin_panel")
+    kb.row(InlineKeyboardButton(text="↩️ Назад в главное меню", callback_data="back_to_admin_menu"))
 
     await call.message.edit_text(
         text,
@@ -102,7 +91,9 @@ async def show_users_paginated(call: CallbackQuery):
 
 @router.callback_query(F.data.startswith("user_profile:"))
 async def show_user_profile(call: CallbackQuery):
-    tg_id = int(call.data.split(":")[1])
+    parts = call.data.split(":")
+    tg_id = int(parts[1])
+    page = int(parts[2]) if len(parts) > 2 else 0
     user = await get_user_by_tg_id(tg_id)
 
     if not user:
@@ -118,7 +109,7 @@ async def show_user_profile(call: CallbackQuery):
     )
 
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔙 Назад", callback_data="admin_users:0")],
+        [InlineKeyboardButton(text="🔙 Назад", callback_data=f"admin_users:{page}")],
     ])
 
     await call.message.edit_text(

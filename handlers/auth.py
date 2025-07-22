@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from states import AuthState
 import auth_utils
-from texts.texts import reg_text
+from texts.texts import reg_text, auth_text
 from keyboards.menu_kb import back_to_menu_keyboard
 
 router = Router()
@@ -24,6 +24,8 @@ async def auth_callback(call: CallbackQuery, state: FSMContext):
         await call.answer()
         return
     await state.set_state(AuthState.waiting_token)
+    
+    await call.message.edit_text(auth_text, parse_mode="HTML")
     await call.answer()
 
 
@@ -46,7 +48,7 @@ async def receive_playlist(message: Message, state: FSMContext):
     data = await state.get_data()
     try:
         kind = await auth_utils.authenticate(message.from_user.id, data["token"], playlist_link)
-        kb = back_to_menu_keyboard()
+        kb = await back_to_menu_keyboard()
         await message.answer(
             f"✅ Успешно! Токен и плейлист сохранены.\n"
             f"<b>kind:</b> <code>{kind}</code>\n\n"

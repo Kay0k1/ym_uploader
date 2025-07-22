@@ -6,3 +6,8 @@ async def get_admin_menu():
         [InlineKeyboardButton(text="👤 Список пользователей", callback_data="admin_users")],
         [InlineKeyboardButton(text="↩️ Назад", callback_data="back_to_menu")],
     ])
+
+async def get_back_admin_menu():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="↩️ Назад", callback_data="back_to_admin_menu")]
+    ])
