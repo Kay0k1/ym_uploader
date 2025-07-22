@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from states import AddTrackState
 from database.requests import add_user_track
 from yt_downloader import set_mp3_metadata, download_audio
+from texts.texts import mp3_instruction_text
 import os
 import uploader
 import auth_utils
@@ -33,7 +34,7 @@ async def choose_track_source(call: CallbackQuery, state: FSMContext):
         await state.set_state(AddTrackState.waiting_query)
     elif source == "mp3":
         await call.message.edit_text(
-            "📁 Отправь mp3-файл.\nЕсли используешь @loaditbot — нажми на нужный трек, \nа затем ПЕРЕШЛИ его сюда ⏩",
+            mp3_instruction_text,
             reply_markup=InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(text="↩️ Вернуться в меню", callback_data="main_menu")]
             ]),
@@ -124,7 +125,7 @@ async def process_title(message: Message, state: FSMContext):
     elif data.get("has_cover"):
         buttons.append([InlineKeyboardButton(text="Оставить как в mp3", callback_data="cover_mp3")])
 
-    buttons.append([InlineKeyboardButton(text="Без обложки", callback_data="cover_none")])
+    buttons.append([InlineKeyboardButton(text="Как в loaditbot", callback_data="cover_none")])
     buttons.append([InlineKeyboardButton(text="Загрузить свою", callback_data="cover_custom")])
     buttons.append([InlineKeyboardButton(text="↩️ Вернуться в меню", callback_data="main_menu")])
 
