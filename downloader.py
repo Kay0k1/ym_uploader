@@ -17,7 +17,7 @@ def download_audio(query: str) -> tuple[str, str | None]:
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": output_path,
-        "ffmpeg_location": "/opt/homebrew/bin/",
+        "ffmpeg_location": "/usr/bin",
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -40,7 +40,9 @@ def download_audio(query: str) -> tuple[str, str | None]:
     final_path = output_path.replace(".%(ext)s", ".mp3")
     if not os.path.exists(final_path):
         raise RuntimeError("MP3 файл не найден после загрузки.")
-
+    
+    if info.get("_type") == "playlist":
+        info = info["entries"][0]
     return final_path, info.get("thumbnail")
 
 
