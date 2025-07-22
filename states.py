@@ -14,4 +14,9 @@ class AddTrackState(StatesGroup):
     waiting_cover_choice = State()
     waiting_cover_file = State()
     choosing_source = State()
+
+class AdminManage(StatesGroup):
+    waiting_for_new_admin_id = State()
+    waiting_for_remove_admin_id = State()
+
     

@@ -1,7 +1,9 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from keyboards.admin_kb import get_admin_menu
+from aiogram.fsm.context import FSMContext
+from states import AdminManage
+from keyboards.admin_kb import get_admin_menu, get_back_admin_menu
 from keyboards.menu_kb import back_to_menu_keyboard
 from database.requests import get_all_users, get_user_by_tg_id
 
@@ -22,6 +24,70 @@ async def admin_panel(message: Message):
         "👑 Админ-панель",
         reply_markup=kb
     )
+    
+
+@router.callback_query(F.data == "add_admin")
+async def add_new_admin_prompt(call: CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await state.set_state(AdminManage.waiting_for_new_admin_id)
+    kb = await get_back_admin_menu()
+    await call.message.answer(
+        "Введите <code>tg_id</code> нового админа:",
+        reply_markup=kb,
+        parse_mode="HTML"
+    )
+
+
+@router.message(AdminManage.waiting_for_new_admin_id)
+async def add_new_admin(message: Message, state: FSMContext):
+    try:
+        new_admin_id = int(message.text.strip())
+    except ValueError:
+        await message.answer("❌ Введите корректный числовой tg_id.")
+        return
+
+    if new_admin_id in ADMINS:
+        await message.answer("⚠️ Этот пользователь уже админ.")
+    else:
+        ADMINS.append(new_admin_id)
+        await message.answer(
+            f"✅ <code>{new_admin_id}</code> добавлен в список админов.",
+            parse_mode="HTML"
+        )
+
+    await state.clear()
+
+
+@router.callback_query(F.data == "delete_admin")
+async def delete_admin_prompt(call: CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await state.set_state(AdminManage.waiting_for_remove_admin_id)
+    kb = await get_back_admin_menu()
+    await call.message.answer(
+        "Введите <code>tg_id</code> админа, которого нужно удалить:",
+        reply_markup=kb,
+        parse_mode="HTML"
+    )
+
+
+@router.message(AdminManage.waiting_for_remove_admin_id)
+async def delete_admin(message: Message, state: FSMContext):
+    try:
+        admin_id = int(message.text.strip())
+    except ValueError:
+        await message.answer("❌ Введите корректный числовой tg_id.")
+        return
+
+    if admin_id not in ADMINS:
+        await message.answer("⚠️ Такого админа нет в списке.")
+    else:
+        ADMINS.remove(admin_id)
+        await message.answer(
+            f"❌ <code>{admin_id}</code> удалён из списка админов.",
+            parse_mode="HTML"
+        )
+
+    await state.clear()
     
 
 @router.callback_query(F.data == "back_to_admin_menu")

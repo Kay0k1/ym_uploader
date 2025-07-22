@@ -125,7 +125,7 @@ async def process_title(message: Message, state: FSMContext):
     elif data.get("has_cover"):
         buttons.append([InlineKeyboardButton(text="Оставить как в mp3", callback_data="cover_mp3")])
 
-    buttons.append([InlineKeyboardButton(text="Как в loaditbot", callback_data="cover_none")])
+    buttons.append([InlineKeyboardButton(text="Не выбирать", callback_data="cover_none")])
     buttons.append([InlineKeyboardButton(text="Загрузить свою", callback_data="cover_custom")])
     buttons.append([InlineKeyboardButton(text="↩️ Вернуться в меню", callback_data="main_menu")])
 
